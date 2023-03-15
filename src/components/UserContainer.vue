@@ -1,18 +1,42 @@
 <template>
   <div>
     <div>{{ error }}</div>
-    <form :key="userData._id" :id="userData._id" @submit.prevent="validateForm">
-      <button v-if="!editing" @click="toggleEdit">Edit</button>
-      <button v-if="!editing" @click="onDelete">Delete</button>
-      <button v-if="editing" type="submit">Save</button>
-      <SwitchComponentType
-        v-for="(value, propertyName) in computedUser"
-        :propertyName="String(propertyName)"
-        :editable="editing"
-        :value="value"
-        @update:value="(newValue) => (userData[propertyName] = newValue)"
-      />
-    </form>
+    <v-expansion-panels>
+      <v-expansion-panel>
+        <v-expansion-panel-title
+          >{{ userData.email }} : ({{ userData._id }})
+        </v-expansion-panel-title>
+        <v-expansion-panel-text>
+          <form :key="userData._id" :id="userData._id" @submit.prevent="validateForm">
+            <v-container>
+              <v-row justify="space-between" class="text-center">
+                <v-col sm="4">
+                  <v-btn v-if="!editing" @click="toggleEdit" icon="mdi-pencil" color="info"></v-btn>
+                </v-col>
+
+                <v-col sm="4">
+                  <v-btn v-if="!editing" @click="onDelete" icon="mdi-delete" color="info"></v-btn>
+                </v-col>
+
+                <v-col sm="4">
+                  <v-btn v-if="editing" type="submit" icon="mdi-content-save" color="info"></v-btn>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col v-for="(value, propertyName) in computedUser" cols="12" sm="6" md="4" lg="3">
+                  <SwitchComponentType
+                    :propertyName="String(propertyName)"
+                    :editable="editing"
+                    :value="value"
+                    @update:value="(newValue) => (userData[propertyName] = newValue)"
+                  />
+                </v-col>
+              </v-row>
+            </v-container>
+          </form>
+        </v-expansion-panel-text>
+      </v-expansion-panel>
+    </v-expansion-panels>
   </div>
 </template>
 
@@ -60,7 +84,8 @@ export default {
         if (configFields[field].mandatory && !this.userData[field])
           return (this.error = 'Please fill all mandatory fields')
       }
-      this.user?._id ? users.update(this.user?._id, this.userData) : users.create(this.userData)
+      if (this.user?._id) users.update(this.user?._id, this.userData).then(this.toggleEdit)
+      else users.create(this.userData)
       return (this.error = '')
     },
     toggleEdit() {
