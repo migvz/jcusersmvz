@@ -7,7 +7,7 @@ class JCAPI<T> {
   private domain: string
   public path: string = ''
   constructor(domain?: string) {
-    this.domain = import.meta.env.DOMAIN || domain || 'http://localhost:8005/api'
+    this.domain = import.meta.env.DOMAIN || domain || 'https://us-central1-mikeplayground-8af67.cloudfunctions.net/jc/api'
   }
   public baseFetch(params: APIParams): Promise<Record<string, any>> {
     return fetch(`${this.domain}/${params.path}`, params.options || {}).then((response) =>
