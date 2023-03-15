@@ -1,19 +1,33 @@
 <template>
   <div>
-    <span>{{ calculatedLabel }}</span>
-    <SwitchComponentType
-      v-if="typeof value === 'object' && deep > 0"
-      v-for="(v, p) in value"
-      :propertyName="String(p)"
-      :value="v"
-      :deep="deep - 1"
-    />
-    <input
-      v-else
-      :type="calculatedType"
+    <v-chip v-if="calculatedType === 'TBH'"> ToBeHandledArray({{ calculatedLabel }}) </v-chip>
+    <v-expansion-panels v-else-if="calculatedType === 'expand'">
+      <v-expansion-panel>
+        <v-expansion-panel-title>
+          {{ calculatedLabel }}
+        </v-expansion-panel-title>
+        <v-expansion-panel-text>
+          <SwitchComponentType
+            v-for="(v, p) in value"
+            :propertyName="String(p)"
+            :value="v"
+            :deep="deep - 1"
+          />
+        </v-expansion-panel-text>
+      </v-expansion-panel>
+    </v-expansion-panels>
+    <v-checkbox
+      v-else-if="calculatedType === 'checkbox'"
+      :label="calculatedLabel"
       :checked="!!value"
       :disabled="calculatedDisable"
-      :value="value"
+      @input="changeHandler"
+    />
+    <v-text-field
+      v-else
+      :label="calculatedLabel"
+      :disabled="calculatedDisable"
+      :model-value="value"
       @input="changeHandler"
     />
   </div>
@@ -38,11 +52,15 @@ export default {
   },
   computed: {
     calculatedType(): string {
+      console.log({ v: this.value, t: typeof this.value, p: this.propertyName })
       switch (typeof this.value) {
         case 'number':
           return 'number'
         case 'boolean':
           return 'checkbox'
+        case 'object':
+          if (this.value == null) return 'text'
+          return this.deep > 0 ? 'expand' : 'TDB'
         default:
           return 'text'
       }

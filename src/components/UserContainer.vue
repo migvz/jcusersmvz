@@ -1,10 +1,18 @@
 <template>
-  <div>
-    <div>{{ error }}</div>
-    <v-expansion-panels>
+    <v-expansion-panels v-model="panel">
       <v-expansion-panel>
-        <v-expansion-panel-title
-          >{{ userData.email }} : ({{ userData._id }})
+        <v-expansion-panel-title>
+          <v-chip class="ma-2" color="info" variant="outlined">
+            <v-icon start icon="mdi-account"></v-icon>
+            {{ userData.email }}
+          </v-chip>
+          <v-chip class="ma-2" color="info" variant="outlined">
+            <v-icon start icon="mdi-identifier"></v-icon>
+            ({{ userData._id }})
+          </v-chip>
+          <v-chip v-if="error" class="ma-2" color="red" text-color="white">
+            {{ error }}
+          </v-chip>
         </v-expansion-panel-title>
         <v-expansion-panel-text>
           <form :key="userData._id" :id="userData._id" @submit.prevent="validateForm">
@@ -37,7 +45,6 @@
         </v-expansion-panel-text>
       </v-expansion-panel>
     </v-expansion-panels>
-  </div>
 </template>
 
 <script lang="ts">
@@ -51,13 +58,14 @@ export default {
   components: {
     SwitchComponentType
   },
-  data(): { userData: User; editing: boolean; error: string } {
+  data(): { userData: User; editing: boolean; error: string; panel: any } {
     return {
       userData: {
         ...this.user
       },
       editing: !this.user?._id,
-      error: ''
+      error: '',
+      panel: !this.user?._id ? [0] : []
     }
   },
   props: {
@@ -65,7 +73,8 @@ export default {
       type: Object as PropType<User>,
       required: true
     },
-    editable: Boolean
+    editable: Boolean,
+    onUserRemoved: Function
   },
   computed: {
     computedUser() {
@@ -85,14 +94,17 @@ export default {
           return (this.error = 'Please fill all mandatory fields')
       }
       if (this.user?._id) users.update(this.user?._id, this.userData).then(this.toggleEdit)
-      else users.create(this.userData)
+      else users.create(this.userData).then(() => this.$router.push('/'))
       return (this.error = '')
     },
     toggleEdit() {
       this.editing = !this.editing
     },
     onDelete() {
-      if (this.user?._id) users.delete(this.user?._id)
+      if (this.user?._id)
+        users
+          .delete(this.user?._id)
+          .then(() => (this.onUserRemoved ? this.onUserRemoved(this.user?._id) : null))
     }
   }
 }

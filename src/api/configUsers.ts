@@ -6,7 +6,7 @@ type ConfigOptions = {
 }
 
 export const configFields: { [key: string]: ConfigOptions } = {
-  "_id": {
+  _id: {
     label: 'ID'
   },
   state: {
@@ -39,5 +39,8 @@ export const configFields: { [key: string]: ConfigOptions } = {
   company: {
     label: 'Company Name',
     editable: true
+  },
+  mfa: {
+    label: 'MFA Options'
   }
 }
