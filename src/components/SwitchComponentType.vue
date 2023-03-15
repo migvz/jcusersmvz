@@ -52,7 +52,6 @@ export default {
   },
   computed: {
     calculatedType(): string {
-      console.log({ v: this.value, t: typeof this.value, p: this.propertyName })
       switch (typeof this.value) {
         case 'number':
           return 'number'
